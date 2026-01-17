@@ -6,7 +6,7 @@ import os
 
 app = FastAPI()
 
-# 環境変数からAPIキーを読み込む（セキュリティ対策）
+# Renderの設定画面で入力したAPIキーをここで読み込みます
 api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
@@ -25,7 +25,7 @@ def generate_timestamps(req: VideoRequest):
     try:
         # 1. 字幕取得
         transcript_list = YouTubeTranscriptApi.get_transcript(req.video_id, languages=['ja', 'en'])
-        
+
         # テキスト結合（最初の15000文字程度に制限してコスト削減）
         full_text = " ".join([t['text'] for t in transcript_list])
         if len(full_text) > 15000:
@@ -36,7 +36,7 @@ def generate_timestamps(req: VideoRequest):
         以下の動画字幕から、料理の重要な手順（材料を切る、炒める、煮込むなど）を抽出し、
         JSON形式で出力してください。雑談は無視し、手順は5〜8個に絞ってください。
         フォーマット: {{ "steps": [ {{ "time": 秒数(int), "text": "短い手順名" }} ] }}
-        
+
         字幕データ:
         {full_text}
         """
@@ -54,5 +54,4 @@ def generate_timestamps(req: VideoRequest):
 
     except Exception as e:
         print(f"Error: {e}")
-        # 字幕がない動画などのエラー処理
         raise HTTPException(status_code=500, detail=str(e))
